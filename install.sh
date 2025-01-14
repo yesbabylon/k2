@@ -113,7 +113,7 @@ fi
 apt-get install -y cron
 
 PHP_SCRIPT="cron.php"
-CRON_CMD="* * * * * cd /root/aru/tapu_backups && /usr/bin/php $PHP_SCRIPT"
+CRON_CMD="* * * * * cd /root/k2/src && /usr/bin/php $PHP_SCRIPT"
 
 # Check if the cron job already exists
 if ! crontab -l | grep -q "$PHP_SCRIPT"; then

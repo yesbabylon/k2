@@ -13,6 +13,7 @@ function instance_release_token(array $data): array {
     }
 
     $domain_name_pattern = '/^(?!\-)(?:[a-zA-Z0-9\-]{1,63}\.)+[a-zA-Z]{2,}$/';
+    
     if(
         !is_string($data['instance']) || empty($data['instance']) || strlen($data['instance']) > 32
         || preg_match($domain_name_pattern, $data['instance']) === 0
@@ -25,14 +26,16 @@ function instance_release_token(array $data): array {
         throw new InvalidArgumentException("missing_token", 400);
     }
 
+    $token_file = BASE_DIR . '/tokens/' . $data['instance'] . '.json';
+
     if(
         !is_string($data['token']) || strlen($data['token']) !== 32
-        || !file_exists(BASE_DIR.'/tokens/'.$data['instance'].'.json')
+        || !file_exists($token_file)
     ) {
         throw new InvalidArgumentException("invalid_token", 400);
     }
 
-    $token_data_json = file_get_contents(BASE_DIR.'/tokens/'.$data['instance'].'.json');
+    $token_data_json = file_get_contents($token_file);
     $token_data = json_decode($token_data_json, true);
 
     if($token_data['token'] !== $data['token']) {
@@ -44,7 +47,6 @@ function instance_release_token(array $data): array {
     exec("userdel $username");
 
     // Remove token file
-    $token_file = TOKENS_DIR.'/'.$data['instance'].'.json';
     unlink($token_file);
 
     return [

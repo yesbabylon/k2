@@ -47,7 +47,7 @@ function instance_create_token(array $data): array {
     $instance = $data['instance'];
 
     // Retrieve the tokens
-    $tokens = glob(TOKENS_DIR.'/*.json');
+    $tokens = glob(BASE_DIR . '/tokens/*.json');
 
     $max_token = getenv('MAX_TOKEN') ?: '3';
 
@@ -69,7 +69,7 @@ function instance_create_token(array $data): array {
     $token_data = compact('token', 'created_at', 'instance');
 
     // Create file to persist the token
-    file_put_contents(TOKENS_DIR."/$instance.json", json_encode($token_data));
+    file_put_contents(BASE_DIR . '/tokens/' . "$instance.json", json_encode($token_data));
 
     // Create a new system user with no shell access (for FTP use)
     $username = $data['instance'];

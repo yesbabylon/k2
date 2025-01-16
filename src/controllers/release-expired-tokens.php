@@ -45,6 +45,6 @@ function release_expired_tokens(): array {
 
     return [
         'code' => 200,
-        'body' => "expired_tokens_released"
+        'body' => [ 'result' => 'expired_tokens_released' ]
     ];
 }

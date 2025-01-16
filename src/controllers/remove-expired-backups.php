@@ -50,6 +50,6 @@ function remove_expired_backups(): array {
 
     return [
         'code' => 200,
-        'body' => "expired_backups_removed"
+        'body' => [ 'result' => 'expired_backups_removed' ]
     ];
 }

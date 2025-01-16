@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Sends an HTTP response with the specified status code and body.
+ * Ouputs JSON as an HTTP response with the specified body, and sets HTTP response code according to given status code.
  *
  * @param $body
  * @param $status_code
@@ -31,19 +31,15 @@ function send_http_response($body, $status_code): void {
     // Set the Content-Type header to indicate JSON response
     header('Content-Type: application/json');
 
-    $data = [ 'result' => $body ];
+    $json_response = $body;
 
-    if($status_code > 299) {
-        $data = [
-            'errors' => $body
-        ];
-    }
+    if(is_array($body)) {
+        // Convert the response data to JSON format
+        $json_response = json_encode($body, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-    // Convert the response data to JSON format
-    $json_response = json_encode($data);
-
-    if(!$json_response) {
-        $json_response = '';
+        if(!$json_response) {
+            $json_response = '{}';
+        }
     }
 
     // Output the JSON response

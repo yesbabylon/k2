@@ -2,14 +2,17 @@
 const BASE_DIR = __DIR__ . '/..';
 const CONTROLLERS_DIR = __DIR__ . '/controllers';
 
+// load all helpers
+$helpers_dir = __DIR__ . '/helpers';
+if (is_dir($helpers_dir)) {
+    foreach (glob($helpers_dir . '/*.php') as $helper_file) {
+        include_once $helper_file;
+    }
+}
 
-include_once './helpers/host-status.php';
-include_once './helpers/http-response.php';
-include_once './helpers/request-handler.php';
-include_once './helpers/cron-handler.php';
-
-include_once './helpers/env.php';
-
+/**
+ * @return array Returns an array with 'body' and 'code' keys.
+ */
 function exec_controller($controller, $payload) {
     $result = ['body' => '', 'code' => 0];
 
@@ -47,11 +50,11 @@ function exec_controller($controller, $payload) {
     }
     catch(Exception $e) {
         // Respond with the exception message and status code
-        $result= [
-            'body'  => '{ "error": "'.$e->getMessage().'" }',
+        $result = [
+            'body'  => [ 'error' => $e->getMessage() ],
             'code'  => $e->getCode()
         ];
     }
-
+    
     return $result;
 }

@@ -211,7 +211,7 @@ function status(): array {
         }
     }
 
-    $result['type'] = 'tapu_backups';
+    $result['type'] = 'k2';
     $result['config']['env'] = getenv();
 
     return [

@@ -8,7 +8,7 @@ $cron_jobs = [
         'controller'    => 'release-expired-tokens'
     ],
     [
-        'description'   => "Remove expired backup tokens once a day.",
+        'description'   => "Remove expired backups once a day.",
         'crontab'       => '0 23 * * *',
         'controller'    => 'remove-expired-backups'
     ]

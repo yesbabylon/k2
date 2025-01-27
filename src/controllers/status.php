@@ -212,7 +212,7 @@ function status(): array {
     }
 
     $result['type'] = 'k2';
-    
+
     // #memo - this adds up too much info and could reveal sensitive data
     // $result['config']['env'] = getenv();
 

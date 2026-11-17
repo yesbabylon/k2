@@ -8,37 +8,47 @@
 /**
  * Returns host status statistics.
  *
+ * Required system binaries:
+ *
+ * standard: ps, awk, grep, head, tail, cut, wc, free, vmstat, df, w, hostname, xargs, cat
+ * extra: ip, vnstat, iptables, hostnamectl
+ *
+ * Notes:
+ * - hostnamectl requires systemd
+ * - vnstat is required for network statistics
+ * - iptables is required for firewall inspection
+ *
+ * @param array{scope: ?string, scopes: ?string[]} $data
+ *
  * @return array{
  *     code: int,
  *     body: array{
- *         type: string,
- *         stats: array{
- *             net: array{
- *                 rx: string,
- *                 tx: string,
- *                 total: string,
- *                 avg_rate: string,
- *             }|false,
- *             cpu: string,
- *             uptime: string
- *         },
+ *         type: string,                    // Host type ("k2").
  *         instant: array{
- *             total_proc: string,
- *             ram_use: string,
- *             cpu_use: string,
- *             dsk_use: string,
- *             usr_active: string,
- *             usr_total: string,
- *             backup_tokens_qty: string
+ *             total_proc: int,             // Total number of running processes.
+ *             ram_use: string,             // RAM usage as a percentage.
+ *             cpu_use: string,             // CPU usage as a percentage.
+ *             dsk_use: string,             // Disk usage as a percentage.
+ *             usr_active: int,             // Number of logged-in users.
+ *             usr_total: int,              // Total number of system users.
+ *             backup_tokens_qty: string    // Qantity of backup tokens.
+ *         },
+ *         state: array{
+ *             uptime: string,              // Uptime in days (e.g., "3days").
+ *             net: string,                 // Network usage metrics.
+ *             cpu: string,                 // Average CPU load since the last reboot.
+ *             backups_disk: string         // Backup disk name.
  *         },
  *         config: array{
- *             host: string,
- *             uptime: string,
- *             mem: string,
- *             cpu_qty: string,
- *             cpu_freq: string,
- *             disk: string,
- *             ip_private: string
+ *             type: string,                // Host type ("k2").
+ *             host: string,                // Hostname of the server.
+ *             platform_ver: string,        // Operating system version.
+ *             kernel_ver: string,          // Kernel version.
+ *             mem: string,                 // Total memory available.
+ *             cpu_qty: int,                // Number of CPU cores.
+ *             cpu_freq: string,            // CPU frequency (e.g., "3.2GHz").
+ *             disk: string,                // Total disk space available.
+ *             ip_private: string           // Private VLAN IP address.
  *         }
  *     }
  * }
@@ -59,47 +69,6 @@ function status(): array {
     $interface = trim($interface, ':');
 
     $commands = [
-        'stats' => [
-            'net' => [
-                'description' => "monthly network volume",
-                'command'     => 'vnstat -i '.$interface.' -m | tail -3 | head -1',
-                'adapt'       => function ($res) {
-                    if(strpos($res, '|') === false) {
-                        return [
-                            'rx'        => 'No data yet',
-                            'tx'        => 'No data yet',
-                            'total'     => 'No data yet',
-                            'avg_rate'  => 'No data yet',
-                        ];
-                    }
-
-                    $parts = preg_split('/\s{2,10}/', $res, 3);
-                    $b = array_map('adapt_unit', array_map('trim', explode('|', $parts[2])));
-                    return array_combine(['rx', 'tx', 'total', 'avg_rate'], $b);
-                }
-            ],
-            'cpu' => [
-                'description' => "average CPU load (%) since last reboot",
-                'command'     => 'vmstat | tail -1| awk \'{print $15}\'',
-                'adapt'       => function ($res) {
-                    return (100 - intval($res)).'%';
-                }
-            ],
-            'uptime' => [
-                'description' => "average CPU load (%) since last reboot",
-                'command'     => 'cat /proc/uptime | awk \'{print $1}\'',
-                'adapt'       => function ($res) {
-                    return (intval($res / 86400) + 1).'days';
-                }
-            ],
-            'backups_disk' => [
-                'description' => "percentage of usage backups disk",
-                'command'     => 'df -h ' . $backups_path . ' | awk \'NR==2 {print $5}\'',
-                'adapt'       => function ($res) {
-                    return $res;
-                }
-            ]
-        ],
         'instant' => [
             'total_proc' => [
                 'description' => "total number of running processes",
@@ -151,6 +120,47 @@ function status(): array {
                 }
             ]
         ],
+        'state' => [
+            'uptime' => [
+                'description' => "quantity of days passed since the server is up",
+                'command'     => 'cat /proc/uptime | awk \'{print $1}\'',
+                'adapt'       => function ($res) {
+                    return (intval($res / 86400) + 1).'days';
+                }
+            ],
+            'net' => [
+                'description' => "monthly network volume",
+                'command'     => 'vnstat -i '.$interface.' -m | tail -3 | head -1',
+                'adapt'       => function ($res) {
+                    if(strpos($res, '|') === false) {
+                        return [
+                            'rx'        => 'No data yet',
+                            'tx'        => 'No data yet',
+                            'total'     => 'No data yet',
+                            'avg_rate'  => 'No data yet',
+                        ];
+                    }
+
+                    $parts = preg_split('/\s{2,10}/', $res, 3);
+                    $b = array_map('adapt_unit', array_map('trim', explode('|', $parts[2])));
+                    return array_combine(['rx', 'tx', 'total', 'avg_rate'], $b);
+                }
+            ],
+            'cpu' => [
+                'description' => "average CPU load (%) since last reboot",
+                'command'     => 'vmstat | tail -1| awk \'{print $15}\'',
+                'adapt'       => function ($res) {
+                    return (100 - intval($res)).'%';
+                }
+            ],
+            'backups_disk' => [
+                'description' => "percentage of usage backups disk",
+                'command'     => 'df -h ' . $backups_path . ' | awk \'NR==2 {print $5}\'',
+                'adapt'       => function ($res) {
+                    return $res;
+                }
+            ]
+        ],
         'config' => [
             'host' => [
                 'description' => "host name",
@@ -159,11 +169,18 @@ function status(): array {
                     return adapt_unit($res);
                 }
             ],
-            'uptime' => [
-                'description' => "time since last reboot",
-                'command'     => 'uptime -s',
+            'platform_ver' => [
+                'description' => "OS version",
+                'command'     => 'hostnamectl | awk -F: \'/Operating System/ {print $2}\' | xargs',
                 'adapt'       => function ($res) {
-                    return date('c', strtotime($res));
+                    return $res;
+                }
+            ],
+            'kernel_ver' => [
+                'description' => "Linux kernel version",
+                'command'     => 'hostnamectl | awk -F: \'/Kernel/ {print $2}\' | xargs',
+                'adapt'       => function ($res) {
+                    return $res;
                 }
             ],
             'mem' => [
@@ -208,15 +225,59 @@ function status(): array {
         ]
     ];
 
-    $result = [];
-    foreach($commands as $cat => $cat_commands) {
-        foreach($cat_commands as $cmd => $command) {
-            $res = exec_status_cmd($command['command']);
-            $result[$cat][$cmd] = $command['adapt']($res);
+    $scopes = array_keys($commands);
+
+    if(isset($data['scope']) && isset($data['scopes'])) {
+        throw new InvalidArgumentException("invalid_only_one_of_scope_or_scopes_are_allowed", 400);
+    }
+
+    if(isset($data['scope']) && (!is_string($data['scope']) || !in_array($data['scope'], $scopes, true))) {
+        throw new InvalidArgumentException("invalid_scope", 400);
+    }
+
+    if(isset($data['scopes'])) {
+        if(!is_array($data['scopes'])) {
+            throw new InvalidArgumentException("invalid_scopes", 400);
+        }
+        foreach($data['scopes'] as $scope) {
+            if(!is_string($scope) || !in_array($scope, $scopes, true)) {
+                throw new InvalidArgumentException("invalid_scopes", 400);
+            }
         }
     }
 
-    $result['type'] = 'k2';
+    if(!empty($data['scopes'] ?? [])) {
+        $scopes = $data['scopes'];
+    }
+    elseif(!empty($data['scope'] ?? '')) {
+        $scopes = [$data['scope']];
+    }
+
+    $result = [];
+    foreach($scopes as $scope) {
+        foreach($commands[$scope] as $cmd => $command) {
+            try {
+                $res = exec_status_cmd($command['command']);
+                if($res === null) {
+                    $result[$scope][$cmd] = null;
+                    continue;
+                }
+                $result[$scope][$cmd] = $command['adapt']($res);
+            }
+            catch(Throwable $e) {
+                $result[$scope][$cmd] = null;
+            }
+        }
+    }
+
+    if(in_array('config', $scopes, true)) {
+        $result['config']['type'] = 'k2';
+    }
+
+    // Keep the legacy top-level field, except when only instant data is requested.
+    if(in_array('state', $scopes, true) || in_array('config', $scopes, true)) {
+        $result['type'] = 'k2';
+    }
 
     // #memo - this adds up too much info and could reveal sensitive data
     // $result['config']['env'] = getenv();

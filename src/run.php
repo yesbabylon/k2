@@ -1,6 +1,6 @@
 <?php
 /*
-    This file is part of the K2 package <http://github.com/yesbabylon/k2>
+    This file is part of the B2 package <http://github.com/yesbabylon/b2>
     Some Rights Reserved, Yesbabylon, 2026
     Licensed under MIT License <https://opensource.org/licenses/MIT>
 */
@@ -17,10 +17,10 @@ function parse_arguments($argv) {
     foreach ($argv as $arg) {
         if(preg_match('/^--route=(.+)$/', $arg, $matches)) {
             $options['route'] = $matches[1];
-        } 
+        }
         elseif(preg_match('/^--method=(.+)$/', $arg, $matches)) {
             $options['method'] = strtoupper($matches[1]);
-        } 
+        }
         elseif(strpos($arg, '--') === 0) {
             $parts = explode('=', substr($arg, 2), 2);
             $key = $parts[0];
@@ -48,7 +48,7 @@ function main($argv) {
     $controller = trim(str_replace('//', '/', '/'.$options['route']), '/');
     $result = exec_controller($controller, $options['params']);
 
-    echo json_encode($result['body'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    echo json_encode($result['body'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES).PHP_EOL;
 }
 
 main($argv);

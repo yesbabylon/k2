@@ -1,6 +1,6 @@
 <?php
 /*
-    This file is part of the K2 package <http://github.com/yesbabylon/k2>
+    This file is part of the B2 package <http://github.com/yesbabylon/b2>
     Some Rights Reserved, Yesbabylon, 2026
     Licensed under MIT License <https://opensource.org/licenses/MIT>
 */
@@ -68,7 +68,7 @@ function instance_is_maintenance_enabled(string $instance): bool {
  */
 function instance_enable_maintenance_mode(string $instance) {
     if(!instance_is_maintenance_enabled($instance)) {
-        file_put_contents("/srv/docker/nginx/html/$instance/maintenance", "");
+        exec("touch /srv/docker/nginx/html/$instance/maintenance");
     }
 }
 
@@ -80,6 +80,6 @@ function instance_enable_maintenance_mode(string $instance) {
  */
 function instance_disable_maintenance_mode(string $instance) {
     if(instance_is_maintenance_enabled($instance)) {
-        unlink("/srv/docker/nginx/html/$instance/maintenance");
+        exec("rm /srv/docker/nginx/html/$instance/maintenance");
     }
 }

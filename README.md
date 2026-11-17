@@ -1,6 +1,6 @@
-# tapu-backups
+# k2
 
-A tapu-backups host is meant to store backups of [b2](https://github.com/yesbabylon/b2) hosts.
+A k2 host is meant to store backups of [b2](https://github.com/yesbabylon/b2) hosts.
 
 ## Install
 

@@ -1,6 +1,6 @@
 # API documentation
 
-The tapu-backups host stores the backups of b2 hosts instances.
+The k2 host stores the backups of b2 hosts instances.
 
 ## Host
 

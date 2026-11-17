@@ -1,4 +1,9 @@
 <?php
+/*
+    This file is part of the K2 package <http://github.com/yesbabylon/k2>
+    Some Rights Reserved, Yesbabylon, 2026
+    Licensed under MIT License <https://opensource.org/licenses/MIT>
+*/
 
 function parse_cron(string $cron_expression): array {
     $parts = preg_split('/\s+/', $cron_expression);

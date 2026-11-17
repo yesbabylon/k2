@@ -1,7 +1,12 @@
 <?php
+/*
+    This file is part of the K2 package <http://github.com/yesbabylon/k2>
+    Some Rights Reserved, Yesbabylon, 2026
+    Licensed under MIT License <https://opensource.org/licenses/MIT>
+*/
 
 /**
- * Ouputs JSON as an HTTP response with the specified body, and sets HTTP response code according to given status code.
+ * Outputs JSON as an HTTP response with the specified body, and sets HTTP response code according to given status code.
  *
  * @param $body
  * @param $status_code

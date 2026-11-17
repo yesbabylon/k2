@@ -1,7 +1,12 @@
 <?php
+/*
+    This file is part of the K2 package <http://github.com/yesbabylon/k2>
+    Some Rights Reserved, Yesbabylon, 2026
+    Licensed under MIT License <https://opensource.org/licenses/MIT>
+*/
 
 /**
- * Returns instances depending on /home sub directories
+ * Returns instances depending on /home subdirectories
  *
  * @param bool $with_deleted
  * @return array|false

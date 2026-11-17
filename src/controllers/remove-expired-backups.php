@@ -1,9 +1,15 @@
 <?php
+/*
+    This file is part of the K2 package <http://github.com/yesbabylon/k2>
+    Some Rights Reserved, Yesbabylon, 2026
+    Licensed under MIT License <https://opensource.org/licenses/MIT>
+*/
 
 /**
  * Remove all expired backups (all accounts), based on current date and date present in backup filenames.
  *
  * @return array{code: string, body: string}
+ * @throws Exception
  */
 function remove_expired_backups(): array {
     $current_time = time();

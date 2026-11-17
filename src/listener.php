@@ -1,5 +1,15 @@
 <?php
+/*
+    This file is part of the K2 package <http://github.com/yesbabylon/k2>
+    Some Rights Reserved, Yesbabylon, 2026
+    Licensed under MIT License <https://opensource.org/licenses/MIT>
+*/
+
 include_once './boot.lib.php';
+
+const HOST_SECRET_FILE = '/root/k2/secrets/host.secrets';
+
+enforce_security();
 
 $request = [
     'method'        => $_SERVER['REQUEST_METHOD'] ?? 'GET',
@@ -26,3 +36,53 @@ $routes = [
 trigger_error('result: '.serialize((array) $body), E_USER_NOTICE);
 
 send_http_response($body, $code);
+
+function enforce_security() {
+    is_readable(HOST_SECRET_FILE) && check_basic_auth();
+}
+
+function check_basic_auth() {
+    [$user, $pass] = parse_basic_auth();
+
+    if($user !== 'root' || !check_password($pass)) {
+        send_http_response(
+            ['error' => 'Unauthorized'],
+            401,
+            ['WWW-Authenticate' => 'Basic realm="host-api"']
+        );
+        exit;
+    }
+}
+
+function check_password($password) {
+    static $hash = null;
+
+    if($hash === null) {
+        if(!is_readable(HOST_SECRET_FILE)) {
+            return false;
+        }
+        $hash = trim(file_get_contents(HOST_SECRET_FILE));
+    }
+
+    return $hash !== '' && password_verify($password, $hash);
+}
+
+function parse_basic_auth(): array {
+    $headers = array_change_key_case(getallheaders(), CASE_LOWER);
+
+    if(!isset($headers['authorization'])) {
+        return [null, null];
+    }
+
+    if(!preg_match('/^Basic\s+(.*)$/i', $headers['authorization'], $matches)) {
+        return [null, null];
+    }
+
+    $decoded = base64_decode($matches[1], true);
+
+    if($decoded === false || strpos($decoded, ':') === false) {
+        return [null, null];
+    }
+
+    return explode(':', $decoded, 2);
+}

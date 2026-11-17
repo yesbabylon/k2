@@ -21,12 +21,12 @@ echo "Creating .env file..."
 touch "$ENV_FILE"
 
 # Prompt the user for values
-ask_and_save "PRIVATE_IP" "Enter the private IP address for the B2 listener: "
+ask_and_save "PRIVATE_IP" "Enter the private IP address for the K2 listener: "
 ask_and_save "BACKUPS_DISK" "Enter the XFS disk to use for backups (optional): "
 ask_and_save "BACKUPS_PATH" "Enter the absolute path of the backup folder: "
 ask_and_save "MAX_TOKEN" "Enter the maximum number of concurrent FTP transfer tokens: "
 ask_and_save "TOKEN_VALIDITY" "Enter the backup token validity period in seconds: "
 
 # Display the generated file
-echo "\n.env file created successfully:"
+printf '\n.env file created successfully:\n'
 cat "$ENV_FILE"

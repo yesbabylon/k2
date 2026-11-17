@@ -3,7 +3,9 @@ Description=Service for managing backups of B2 instances.
 After=network.target
 
 [Service]
+User=root
 Type=simple
+EnvironmentFile=/root/k2/.env
 ExecStart=/usr/bin/php -S ${PRIVATE_IP}:8000 -t /root/k2/src /root/k2/src/listener.php
 WorkingDirectory=/root/k2/src
 Restart=always

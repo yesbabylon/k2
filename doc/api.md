@@ -4,6 +4,32 @@ The k2 host stores the backups of b2 hosts instances.
 
 ## Host
 
+### GET _/backups_
+
+Get all stored backups, grouped by instance.
+
+#### Request Headers
+
+| key          | value            |
+|--------------|------------------|
+| Content-Type | application/json |
+
+#### Body
+
+```json
+{}
+```
+
+#### Response
+
+```json
+{
+  "equal.local": [
+    "equal.local_20261118_30.tar.gpg"
+  ]
+}
+```
+
 ### POST _/status_
 
 Get the status of the backups host.

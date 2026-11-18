@@ -21,6 +21,7 @@ $request = [
 $routes = [
     'GET' => [
         '/status',                  /* @link status() */
+        '/backups',                 /* @link backups() */
         '/instance/backups',        /* @link instance_backups() */
     ],
     'POST' => [
